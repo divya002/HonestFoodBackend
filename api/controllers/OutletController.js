@@ -4,12 +4,16 @@
  * @description :: Server-side actions for handling incoming requests.
  * @help        :: See https://sailsjs.com/docs/concepts/actions
  */
+const kmlParse = require('kml-parse');
+const fs = require('fs-extra');
+const DOMParser = require('xmldom').DOMParser;
+const kmlDom = new DOMParser().parseFromString(fs.readFileSync('./deliveryAreas.kml', 'utf8'));
+const location=kmlParse.parse(kmlDom).geoJSON.features;
 const Geocoding = require('@mapquest/geocoding');
 const client = new Geocoding({
   key: 'KoPQHyBHYRZwhIAT94wCMGAM9oU9X8QX'
 });
 var classifyPoint = require('robust-point-in-polygon');
-var location = require('../../delhiveryArea.json').features; //kml converted to geojson
 
 module.exports = {
   outletByAddress: async function(req, res) {
@@ -28,7 +32,7 @@ module.exports = {
             return res.json({
               status: 200,
               message: 'Outlet found.',
-              outlet: location[i].properties.Name
+              outlet: location[i].properties.name
             });
           }
         }
